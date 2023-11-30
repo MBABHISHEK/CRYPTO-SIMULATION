@@ -1,63 +1,50 @@
-import string 
+import random
 
-alphabets = list(string.ascii_lowercase)
+def create_alphabet_mapping():
+    alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    mapping = {char: idx for idx, char in enumerate(alphabet)}
+    return mapping
 
-def encryption(plain_text, key):
-    cipher_text = ""
-    key_index = 0
+def generate_random_key(message_length):
+    return [random.randint(0, 25) for _ in range(message_length)]
 
-    for char in plain_text:
-        if char in alphabets:
-            position = alphabets.index(char)
-            key_char = key[key_index % len(key)]
-            key_position = alphabets.index(key_char)
-            new_position = (position + key_position) % 26
-            cipher_text += alphabets[new_position]
-            key_index += 1
-        else:
-             cipher_text += char
+def encrypt_vernam_with_mapping(message, key, alphabet_mapping):
+    encrypted_message = ""
+    for char, key_value in zip(message, key):
+            is_upper = char.isupper()
+            char_upper = char.upper()
+            position = alphabet_mapping[char_upper]
+            new_position = (position + key_value) % 26
+            encrypted_char = chr(new_position + ord('A'))
+            encrypted_char = encrypted_char.lower() if not is_upper else encrypted_char
+            encrypted_message += encrypted_char
+    return encrypted_message
 
-    print("The text after encryption is:", cipher_text)
+def decrypt_vernam_with_mapping(encrypted_message, key, alphabet_mapping):
+    return encrypt_vernam_with_mapping(encrypted_message, key, alphabet_mapping)
 
-def vigenere_decryption(cipher_text, key):
-    plain_text = ""
-    key_index = 0
+choice = input("Enter 'E' for encryption or 'D' for decryption: ").upper()
 
-    for char in cipher_text:
-        if char in alphabets:
-            position = alphabets.index(char)
-            key_char = key[key_index % len(key)]
-            key_position = alphabets.index(key_char)
-            new_position = (position - key_position) % 26
-            plain_text += alphabets[new_position]
-            key_index += 1
-        else:
-            plain_text += char
-
-    print("The text after Vigenere decryption is:", plain_text)
-
-while True:
-    print("----------------------------------------------------")
-    print("Enter your choice:")
-    choice = input("1.encryption \n2.decryption\n")
+if choice == 'E':
+    message = input("Enter a message: ")
+    alphabet_mapping = create_alphabet_mapping()
     
-    if choice == "1":
-        text = input("Type your message:").lower()
-        key_given = input("Enter the key:").lower()
-        if len(key_given) != len(text):
-            print("Key is not having same length as that of plaintext..try again!!")
-        else:    
-            encryption(plain_text=text, key=key_given)
-   
-    elif choice == "2":
-        text = input("Type your message:").lower()
-        key_given = input("Enter the key:").lower()
-        if len(key_given) != len(text):
-            print("Key is not having same length as that of ciphertext..try again!!")
-        else:   
-            vigenere_decryption(cipher_text=text, key=key_given)
-    
-    else:
-        print("Invalid choice.....Thank you!!")
-        break
+    # Generate a random key of the same length as the message
+    key = generate_random_key(len(message))
 
+    result = encrypt_vernam_with_mapping(message, key, alphabet_mapping)
+    print("Encrypted message:", result)
+    print("Key:", key)
+
+elif choice == 'D':
+    # Decryption
+    encrypted_message = input("Enter an encrypted message: ")
+    key = list(map(int, input("Enter the key (space-separated integers): ").split()))
+
+    alphabet_mapping = create_alphabet_mapping()
+
+    result = decrypt_vernam_with_mapping(encrypted_message, key, alphabet_mapping)
+    print("Decrypted message:", result)
+
+else:
+    print("Invalid choice. Please enter 'E' or 'D'.")
