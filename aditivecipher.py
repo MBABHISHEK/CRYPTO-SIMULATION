@@ -1,44 +1,46 @@
-import string 
+def create_alphabet_mapping():
+    alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    mapping = {char: idx for idx, char in enumerate(alphabet)}
+    return mapping
 
-alphabets=list(string.ascii_lowercase)
+def encrypt_additive_with_mapping(message, key, alphabet_mapping):
+    encrypted_message = ""
+    for char in message:
+             if char.isalpha():
+                is_upper = char.isupper()
+                char_upper = char.upper()
+                position = alphabet_mapping[char_upper]
+                new_position = (position + key) % 26
+                encrypted_char = chr(new_position + ord('A'))
+                # Convert back to the original case
+                encrypted_char = encrypted_char.lower() if not is_upper else encrypted_char
+                encrypted_message += encrypted_char
+             else:
+                encrypted_message += char
+    return encrypted_message
 
-def encryption(plain_text,key):
-    cipher_text = ""
-    for char in plain_text:
-        if char in alphabets:
-            position = alphabets.index(char)
-            new_position = (position + key) % 26
-            cipher_text += alphabets[new_position]
-        else:
-             cipher_text += char
-    print("The text after encryption is :",cipher_text)
-        
-def decryption(cipher_text,key):
-    plain_text = ""
-    for char in cipher_text:
-        if char in alphabets:
-            position = alphabets.index(char)
-            new_position = (position - key) % 26
-            plain_text += alphabets[new_position]
-        else:
-            plain_text += char
-    print("The text after decryption is : ",plain_text)
+def decrypt_additive_with_mapping(encrypted_message, key, alphabet_mapping):
+    return encrypt_additive_with_mapping(encrypted_message, -key, alphabet_mapping)
 
-while True:
-    print("----------------------------------------------------")
-    print("Enter your choice:")
-    choice = input("1.encryption \n2.decryption\n")
+choice = input("Enter 'E' for encryption or 'D' for decryption: ").upper()
+
+if choice == 'E':
+    message = input("Enter a message: ")
     
-    if choice == "1":
-        text = input("Type your message:").lower()
-        key_given = int(input("enter the key:"))
-        encryption(plain_text=text,key=key_given)
-    
-    elif choice == "2":
-        text = input("Type your message:").lower()
-        key_given = int(input("enter the key:"))
-        decryption(cipher_text=text,key=key_given)
-    
-    else:
-        print("Invalid choice.....Thank you!!")
-        break
+    key = int(input("Enter a key: "))
+    alphabet_mapping = create_alphabet_mapping()
+    result = encrypt_additive_with_mapping(message, key, alphabet_mapping)
+    print("Encrypted message:", result)
+
+elif choice == 'D':
+    # Decryption
+    encrypted_message = input("Enter an encrypted message: ")
+    key = int(input("Enter the key: "))
+
+    alphabet_mapping = create_alphabet_mapping()
+
+    result = decrypt_additive_with_mapping(encrypted_message, key, alphabet_mapping)
+    print("Decrypted message:", result)
+
+else:
+    print("Invalid choice. Please enter 'E' or 'D'.")
